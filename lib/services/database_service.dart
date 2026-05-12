@@ -1,4 +1,4 @@
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/schemas.dart';
 import '../utils/rdp_compression.dart';
@@ -10,10 +10,10 @@ class DatabaseService {
   static Future<void> init() async {
     if (_isInitialized) return;
     final dir = await getApplicationDocumentsDirectory();
-    isar = await Isar.open(
-      [ActivitySchema, LocationPointSchema],
-      directory: dir.path,
-    );
+    isar = await Isar.open([
+      ActivitySchema,
+      LocationPointSchema,
+    ], directory: dir.path);
     _isInitialized = true;
   }
 
@@ -89,7 +89,10 @@ class DatabaseService {
   }
 
   // Apply batch RDP compression to location point sequences older than maxAge
-  Future<int> applyStorageRetentionPolicy(Duration maxAge, double epsilonMeters) async {
+  Future<int> applyStorageRetentionPolicy(
+    Duration maxAge,
+    double epsilonMeters,
+  ) async {
     final thresholdDate = DateTime.now().subtract(maxAge);
     final oldActivities = await isar.activitys
         .filter()
@@ -114,13 +117,16 @@ class DatabaseService {
                 .deleteAll();
 
             // Insert fresh compressed entities
-            final optimizedPoints = compressed.map((p) => LocationPoint()
-              ..activityId = act.id
-              ..lat = p.lat
-              ..lng = p.lng
-              ..accuracyMeters = p.accuracyMeters
-              ..recordedAt = p.recordedAt
-            ).toList();
+            final optimizedPoints = compressed
+                .map(
+                  (p) => LocationPoint()
+                    ..activityId = act.id
+                    ..lat = p.lat
+                    ..lng = p.lng
+                    ..accuracyMeters = p.accuracyMeters
+                    ..recordedAt = p.recordedAt,
+                )
+                .toList();
 
             await isar.locationPoints.putAll(optimizedPoints);
           });

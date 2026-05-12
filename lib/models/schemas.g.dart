@@ -13,7 +13,7 @@ extension GetActivityCollection on Isar {
   IsarCollection<Activity> get activitys => this.collection();
 }
 
-const ActivitySchema = CollectionSchema(
+final ActivitySchema = CollectionSchema(
   name: r'Activity',
   id: -6099828696840999229,
   properties: {
@@ -1049,7 +1049,7 @@ extension GetLocationPointCollection on Isar {
   IsarCollection<LocationPoint> get locationPoints => this.collection();
 }
 
-const LocationPointSchema = CollectionSchema(
+final LocationPointSchema = CollectionSchema(
   name: r'LocationPoint',
   id: -3394630736659185878,
   properties: {

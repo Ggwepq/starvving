@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/schemas.dart';
 import '../services/database_service.dart';
 import '../services/tracking_service.dart';
 import '../widgets/route_map_view.dart';
 import 'activity_detail_screen.dart';
-import 'offline_maps_screen.dart';
 import 'insights_screen.dart';
 import '../widgets/live_maplibre_view.dart';
 
@@ -22,13 +22,22 @@ class _HomeScreenState extends State<HomeScreen> {
   final DatabaseService _dbService = DatabaseService();
   List<Activity> _activities = [];
   bool _isLoadingHistory = true;
-  bool _simulationMode = true; // default true for immediate perfect demo
-  bool _useMaplibreEngine = false;
+  bool _useMaplibreEngine = true; // default true to load local vector MBTiles map and live blue dot immediately
 
   @override
   void initState() {
     super.initState();
+    _requestPermissionPreemptively();
     _loadActivities();
+  }
+
+  Future<void> _requestPermissionPreemptively() async {
+    try {
+      final perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadActivities() async {
@@ -64,57 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.map_rounded, color: Color(0xFFC3F400)),
-            tooltip: 'Manage Offline Map Regions',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const OfflineMapsScreen(),
-                ),
-              );
-            },
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E2113),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF282B1D)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFC3F400),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'OFFLINE FIRST',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFFE2E4CF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: IndexedStack(
         index: _currentIndex,
         children: [
           _buildLiveTrackingTab(context),
           _buildHistoryTab(context),
-          const InsightsScreen(),
+          InsightsScreen(key: ValueKey('insights_tab_$_currentIndex')),
         ],
       ),
       bottomNavigationBar: Container(
@@ -314,23 +280,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           children: [
                             Icon(
-                              tracker.isGpsLocked
-                                  ? Icons.signal_cellular_alt_rounded
-                                  : Icons.signal_cellular_off_rounded,
-                              color: tracker.isGpsLocked
-                                  ? const Color(0xFFC3F400)
-                                  : Colors.orangeAccent,
+                              !tracker.isTracking
+                                  ? Icons.gps_fixed_rounded
+                                  : (tracker.isGpsLocked
+                                      ? Icons.signal_cellular_alt_rounded
+                                      : Icons.signal_cellular_off_rounded),
+                              color: !tracker.isTracking
+                                  ? const Color(0xFF8E9379)
+                                  : (tracker.isGpsLocked
+                                      ? const Color(0xFFC3F400)
+                                      : Colors.orangeAccent),
                               size: 16,
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              tracker.isGpsLocked ? 'LOCKED' : 'SEARCHING',
+                              !tracker.isTracking
+                                  ? 'READY'
+                                  : (tracker.isGpsLocked ? 'GPS LOCKED' : 'GPS SIGNAL'),
                               style: GoogleFonts.jetBrainsMono(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: tracker.isGpsLocked
-                                    ? const Color(0xFFC3F400)
-                                    : Colors.orangeAccent,
+                                color: !tracker.isTracking
+                                    ? const Color(0xFF8E9379)
+                                    : (tracker.isGpsLocked
+                                        ? const Color(0xFFC3F400)
+                                        : Colors.orangeAccent),
                               ),
                             ),
                           ],
@@ -496,54 +470,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ] else ...[
-                // Settings bar selection switch
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A1D10),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF282B1D)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'SIMULATION ROUTE MODE',
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFFE2E4CF),
-                            ),
-                          ),
-                          Text(
-                            'Generate sample live breadcrumbs instantly',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: const Color(0xFF8E9379),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Switch(
-                        value: _simulationMode,
-                        activeThumbColor: const Color(0xFFC3F400),
-                        onChanged: (val) {
-                          setState(() {
-                            _simulationMode = val;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
                 // Primary Start Button
                 SizedBox(
                   width: double.infinity,
@@ -567,7 +493,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     onPressed: () {
-                      tracker.startTracking(simulationMode: _simulationMode);
+                      tracker.startTracking();
                     },
                   ),
                 ),

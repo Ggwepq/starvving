@@ -73,7 +73,7 @@ class TrackingService extends ChangeNotifier {
   }
 
   // Initialize and start tracking session
-  Future<void> startTracking({bool simulationMode = false}) async {
+  Future<void> startTracking() async {
     if (_isTracking) return;
 
     _isTracking = true;
@@ -93,11 +93,7 @@ class TrackingService extends ChangeNotifier {
       notifyListeners();
     });
 
-    if (simulationMode) {
-      _startSimulation();
-    } else {
-      await _startGpsStream();
-    }
+    await _startGpsStream();
   }
 
   Future<void> _startGpsStream() async {
@@ -107,8 +103,8 @@ class TrackingService extends ChangeNotifier {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
-          // Fallback to simulation mode smoothly so user experience isn't blocked
-          _startSimulation();
+          _isGpsLocked = false;
+          notifyListeners();
           return;
         }
       }
@@ -134,32 +130,10 @@ class TrackingService extends ChangeNotifier {
         if (kDebugMode) print("GPS Stream Error: $e");
       });
     } catch (e) {
-      // Gracefully fall back to simulated route if real GPS service is disabled
-      _startSimulation();
+      _isGpsLocked = false;
+      notifyListeners();
+      if (kDebugMode) print("GPS Init Error: $e");
     }
-  }
-
-  // Offline simulation generation for highly polished demonstration & test flow
-  Timer? _simulationTimer;
-  void _startSimulation() {
-    _isGpsLocked = true;
-    notifyListeners();
-
-    // Starting coordinate (Metro Manila / scenic route base)
-    double lat = 14.5547;
-    double lng = 121.0244;
-
-    _simulationTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (!_isTracking) {
-        timer.cancel();
-        return;
-      }
-      // Add a slight movement
-      lat += 0.00015;
-      lng += 0.00010;
-
-      _processNewPosition(lat, lng, 4.5); // accuracy well under 15m
-    });
   }
 
   void _processNewPosition(double lat, double lng, double accuracy) {
@@ -209,7 +183,6 @@ class TrackingService extends ChangeNotifier {
 
     _isTracking = false;
     _timer?.cancel();
-    _simulationTimer?.cancel();
     await _positionSubscription?.cancel();
     _positionSubscription = null;
     _isGpsLocked = false;
@@ -257,7 +230,6 @@ class TrackingService extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
-    _simulationTimer?.cancel();
     _positionSubscription?.cancel();
     super.dispose();
   }

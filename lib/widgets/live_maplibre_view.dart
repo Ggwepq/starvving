@@ -1,6 +1,10 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:geolocator/geolocator.dart';
 import '../models/schemas.dart';
 
 class LiveMaplibreView extends StatefulWidget {
@@ -20,12 +24,66 @@ class LiveMaplibreView extends StatefulWidget {
 class _LiveMaplibreViewState extends State<LiveMaplibreView> {
   MapLibreMapController? _mapController;
   Line? _trajectoryLine;
+  String? _resolvedStyleString;
+  bool _isUnpacking = false;
+  LatLng _initialTarget = const LatLng(14.5547, 121.0244); // default Metro Manila
 
-  static const String _tacticalStyleJson = '''
+  @override
+  void initState() {
+    super.initState();
+    _prepareOfflineMapEngine();
+  }
+
+  Future<void> _prepareOfflineMapEngine() async {
+    // 1. Determine optimized initial viewport (physical sensor or route sets)
+    if (widget.points.isNotEmpty) {
+      _initialTarget = LatLng(widget.points.last.lat, widget.points.last.lng);
+    } else {
+      try {
+        final pos = await Geolocator.getLastKnownPosition() ??
+            await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                timeLimit: Duration(seconds: 2),
+              ),
+            );
+        _initialTarget = LatLng(pos.latitude, pos.longitude);
+      } catch (_) {}
+    }
+
+    // 2. Unpack bundled 432MB offline OpenMapTiles database asset locally
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final targetFile = File('${dir.path}/osm_philippines_v3.mbtiles');
+
+      if (!targetFile.existsSync()) {
+        if (mounted) {
+          setState(() {
+            _isUnpacking = true;
+          });
+        }
+        final byteData = await rootBundle.load(
+          'assets/maps/osm-2020-02-10-v3.11_asia_philippines.mbtiles',
+        );
+        await targetFile.writeAsBytes(
+          byteData.buffer.asUint8List(
+            byteData.offsetInBytes,
+            byteData.lengthInBytes,
+          ),
+          flush: true,
+        );
+      }
+
+      // 3. Assemble dynamic MapLibre offline vector style targeting SQLite source
+      final styleString = '''
 {
   "version": 8,
-  "name": "Starvving Tactical Dark",
-  "sources": {},
+  "name": "Starvving Bundled Vector Dark",
+  "sources": {
+    "openmaptiles": {
+      "type": "vector",
+      "url": "mbtiles://${targetFile.path}"
+    }
+  },
   "layers": [
     {
       "id": "background",
@@ -33,10 +91,80 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
       "paint": {
         "background-color": "#111508"
       }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#0B1D1A"
+      }
+    },
+    {
+      "id": "transportation",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "paint": {
+        "line-color": "#28332A",
+        "line-width": 1.5
+      }
+    },
+    {
+      "id": "building",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "building",
+      "paint": {
+        "fill-color": "#1A2416",
+        "fill-opacity": 0.6
+      }
+    },
+    {
+      "id": "boundary",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "boundary",
+      "paint": {
+        "line-color": "#333627",
+        "line-width": 1.0,
+        "line-dasharray": [2, 2]
+      }
     }
   ]
 }
 ''';
+
+      if (mounted) {
+        setState(() {
+          _resolvedStyleString = styleString;
+          _isUnpacking = false;
+        });
+      }
+    } catch (e) {
+      // Fallback minimalist canvas base if direct SQLite IO access fails
+      if (mounted) {
+        setState(() {
+          _resolvedStyleString = '''
+{
+  "version": 8,
+  "name": "Starvving Base Fallback",
+  "sources": {},
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#111508" }
+    }
+  ]
+}
+''';
+          _isUnpacking = false;
+        });
+      }
+    }
+  }
 
   @override
   void didUpdateWidget(covariant LiveMaplibreView oldWidget) {
@@ -65,7 +193,7 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
           ),
         );
       } catch (e) {
-        // Line addition might fail if map style isn't fully idle yet
+        // Line addition might queue if engine is still compiling style vectors
       }
     } else {
       try {
@@ -74,12 +202,10 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
           LineOptions(geometry: latlngs),
         );
       } catch (e) {
-        // Recreate line gracefully if pointer lost
         _trajectoryLine = null;
       }
     }
 
-    // Smoothly pan camera to follow latest coordinate stream
     if (latlngs.isNotEmpty) {
       _mapController!.animateCamera(
         CameraUpdate.newLatLng(latlngs.last),
@@ -89,15 +215,6 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine initial startup target location
-    LatLng initialTarget = const LatLng(14.5547, 121.0244); // Metro Manila seed base
-    if (widget.points.isNotEmpty) {
-      initialTarget = LatLng(
-        widget.points.last.lat,
-        widget.points.last.lng,
-      );
-    }
-
     return Container(
       height: widget.height,
       width: double.infinity,
@@ -105,55 +222,96 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFF282B1D), width: 1.5),
       ),
-      // Clip behavior ensures map renderer doesn't spill outside rounded borders
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          MapLibreMap(
-            styleString: _tacticalStyleJson,
-            initialCameraPosition: CameraPosition(
-              target: initialTarget,
-              zoom: 16.0,
-            ),
-            onMapCreated: (controller) {
-              _mapController = controller;
-              _updateTrajectory();
-            },
-            myLocationEnabled: false,
-            compassEnabled: false,
-          ),
-
-          // Tactical mode indicator overlay matching Option A design specification
-          Positioned(
-            top: 12,
-            left: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E2113).withOpacity(0.85),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: const Color(0xFF333627)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.map_outlined,
-                    size: 12,
-                    color: Color(0xFFC3F400),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'MAPLIBRE NATIVE ENGINE',
-                    style: TextStyle(
-                      fontFamily: 'JetBrains Mono',
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white.withOpacity(0.9),
+      child: _isUnpacking
+          ? _buildUnpackingOverlay()
+          : (_resolvedStyleString == null
+              ? const Center(
+                  child: CircularProgressIndicator(color: Color(0xFFC3F400)),
+                )
+              : Stack(
+                  children: [
+                    MapLibreMap(
+                      styleString: _resolvedStyleString!,
+                      initialCameraPosition: CameraPosition(
+                        target: _initialTarget,
+                        zoom: 16.0,
+                      ),
+                      onMapCreated: (controller) {
+                        _mapController = controller;
+                        _updateTrajectory();
+                      },
+                      myLocationEnabled: true, // Native physical position live blue dot continuously active
+                      compassEnabled: false,
                     ),
-                  ),
-                ],
-              ),
+
+                    // Tactical mode active database overlay HUD badge
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E2113).withOpacity(0.85),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF333627)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.storage_rounded,
+                              size: 12,
+                              color: Color(0xFFC3F400),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'BUNDLED OFFLINE DATABASE ACTIVE',
+                              style: TextStyle(
+                                fontFamily: 'JetBrains Mono',
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+    );
+  }
+
+  Widget _buildUnpackingOverlay() {
+    return Container(
+      color: const Color(0xFF111508),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(color: Color(0xFFC3F400)),
+          const SizedBox(height: 16),
+          Text(
+            'UNPACKING OFFLINE MAP DATABASE...',
+            style: TextStyle(
+              fontFamily: 'JetBrains Mono',
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFFC3F400),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Extracting bundled vector terrain assets locally for continuous sub-millisecond mapping rendering.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 11,
+              color: const Color(0xFF8E9379),
             ),
           ),
         ],

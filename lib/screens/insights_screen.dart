@@ -46,11 +46,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF111508),
         elevation: 0,
+        automaticallyImplyLeading: false,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFFC3F400)),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
           'PERFORMANCE INSIGHTS',
           style: GoogleFonts.barlowCondensed(
