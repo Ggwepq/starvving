@@ -7,6 +7,7 @@ import '../services/tracking_service.dart';
 import '../widgets/route_map_view.dart';
 import 'activity_detail_screen.dart';
 import 'offline_maps_screen.dart';
+import 'insights_screen.dart';
 import '../widgets/live_maplibre_view.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -113,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildLiveTrackingTab(context),
           _buildHistoryTab(context),
+          const InsightsScreen(),
         ],
       ),
       bottomNavigationBar: Container(
@@ -152,6 +154,11 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.history_toggle_off_rounded),
               activeIcon: Icon(Icons.history_rounded),
               label: 'HISTORY',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.insights_outlined),
+              activeIcon: Icon(Icons.insights_rounded),
+              label: 'INSIGHTS',
             ),
           ],
         ),
