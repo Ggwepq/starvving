@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,900&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "tertiary-container": "#d2e5f5",
+                  "outline-variant": "#2a2a2a",
+                  "secondary": "#ffb5a0",
+                  "on-background": "#e2e2e2",
+                  "on-secondary": "#5f1500",
+                  "surface-bright": "#2c2c2c",
+                  "on-error-container": "#ffdad6",
+                  "on-primary-container": "#ffffff",
+                  "secondary-container": "#d73b00",
+                  "surface-container-lowest": "#050505",
+                  "error": "#ffb4ab",
+                  "on-primary-fixed": "#161e00",
+                  "on-tertiary-container": "#556774",
+                  "surface-dim": "#121212",
+                  "surface-tint": "#d50000",
+                  "on-primary": "#ffffff",
+                  "secondary-fixed-dim": "#ffb5a0",
+                  "on-tertiary": "#21323e",
+                  "on-error": "#690005",
+                  "background": "#121212",
+                  "on-tertiary-fixed-variant": "#374956",
+                  "primary-fixed-dim": "#d50000",
+                  "on-primary-fixed-variant": "#d50000",
+                  "surface-container-high": "#1a1a1a",
+                  "primary": "#d50000",
+                  "tertiary-fixed": "#d2e5f5",
+                  "surface-container-highest": "#242424",
+                  "on-secondary-container": "#fffbff",
+                  "inverse-on-surface": "#121212",
+                  "inverse-surface": "#e2e2e2",
+                  "tertiary": "#ffffff",
+                  "primary-fixed": "#d50000",
+                  "outline": "#444444",
+                  "surface": "#121212",
+                  "primary-container": "#d50000",
+                  "on-tertiary-fixed": "#0b1d29",
+                  "inverse-primary": "#506600",
+                  "surface-container-low": "#161616",
+                  "on-surface": "#e2e2e2",
+                  "secondary-fixed": "#ffdbd1",
+                  "on-surface-variant": "#a0a0a0",
+                  "error-container": "#93000a",
+                  "surface-container": "#1a1a1a",
+                  "surface-variant": "#242424",
+                  "tertiary-fixed-dim": "#b6c9d8",
+                  "on-secondary-fixed": "#3b0900",
+                  "on-secondary-fixed-variant": "#862200"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "xs": "4px",
+                  "xl": "32px",
+                  "gutter": "12px",
+                  "unit": "4px",
+                  "md": "16px",
+                  "sm": "8px",
+                  "margin-mobile": "16px",
+                  "lg": "24px"
+          },
+          "fontFamily": {
+                  "headline-lg": ["Barlow Condensed"],
+                  "label-caps": ["JetBrains Mono"],
+                  "metric-lg": ["Barlow Condensed"],
+                  "metric-md": ["Barlow Condensed"],
+                  "body-lg": ["Inter"],
+                  "headline-md": ["Barlow Condensed"],
+                  "body-md": ["Inter"]
+          },
+          "fontSize": {
+                  "headline-lg": ["32px", {"lineHeight": "36px", "fontWeight": "700"}],
+                  "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                  "metric-lg": ["64px", {"lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "metric-md": ["48px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                  "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                  "headline-md": ["24px", {"lineHeight": "28px", "fontWeight": "600"}],
+                  "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      background-color: #121212;
+      color: #e2e2e2;
+    }
+    /* Structural Layering from Style Guidance */
+    .bento-card {
+      border: 1px solid #2a2a2a;
+      background-color: #1a1a1a;
+    }
+    .active-border {
+      border: 2px solid #d50000;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-md antialiased pb-24">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile h-16 bg-surface dark:bg-surface border-b border-outline-variant docked full-width top-0 z-50 sticky">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">gps_fixed</span>
+<h1 class="font-headline-lg text-headline-lg text-primary-container italic font-black">STARVVING</h1>
+</div>
+</header>
+<main class="px-4 py-6 max-w-2xl mx-auto space-y-6">
+<!-- Title Section -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight">Offline Region Manager</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">PRO-GRADE TACTICAL CACHE</p>
+</section>
+<!-- Storage Usage Bar -->
+<section class="bento-card p-4 rounded-lg">
+<div class="flex justify-between items-end mb-3">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">LOCAL STORAGE USAGE</span>
+<span class="font-metric-md text-metric-md text-primary-container">1.2GB</span>
+<span class="font-headline-md text-headline-md text-on-surface-variant">/ 128GB</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">0.9% USED</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container shadow-[0_0_8px_rgba(213,0,0,0.5)]" style="width: 0.94%"></div>
+</div>
+</section>
+<!-- Download Search -->
+<section class="space-y-3">
+<div class="relative group">
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg h-12 pl-12 pr-4 font-label-caps text-label-caps focus:border-primary-container focus:ring-0 transition-colors" placeholder="SEARCH NEW REGION..." type="text"/>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-headline-md text-headline-md h-12 rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">download</span>
+        DOWNLOAD NEW REGION
+      </button>
+</section>
+<!-- Downloaded Regions List -->
+<section class="space-y-3">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant px-1">CACHED MAP DATA</h3>
+<!-- Region Item 1 -->
+<div class="bento-card p-4 rounded-lg flex items-center gap-4 group">
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary-container">map</span>
+</div>
+<div class="flex-1">
+<div class="font-headline-md text-headline-md leading-tight">Metro Manila</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">42MB • UPDATED 2D AGO</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">sync</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
+<span class="material-symbols-outlined text-secondary">delete_forever</span>
+</button>
+</div>
+</div>
+<!-- Region Item 2 -->
+<div class="bento-card p-4 rounded-lg flex items-center gap-4 group">
+<div class="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary-container">map</span>
+</div>
+<div class="flex-1">
+<div class="font-headline-md text-headline-md leading-tight">Quezon City</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">15MB • UPDATED 5D AGO</div>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">sync</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
+<span class="material-symbols-outlined text-secondary">delete_forever</span>
+</button>
+</div>
+</div>
+<!-- Mini Map Preview Context -->
+<div class="relative w-full h-32 rounded-lg overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover grayscale opacity-50" data-alt="A dark tactical topographic map visualization showing intricate terrain contour lines, GPS waypoints, and a highlighted active region. The aesthetic is high-contrast dark mode with crimson red accents for paths and dark gray for background terrain, evoking a professional military-grade navigation interface for high-endurance athletes." data-location="Quezon City" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD533e6UvU3_-PmyLm-hLew9OSf1USgzBj-8bEYRSLV9SEbG9ZQWo9cxy-ABLn_QW6BN_ZaA5Z60waR7yQY2KeT4M7uUWVYWq53o9JLmwXrEoiVbol-zjDb5Eqwq2_i6yiB-vgo7Mp2lNIdJIcvwT2R4_YsbU86-Fx4lSMHW67xndNXHtNT1dblXeD-Iy7GljrB1OgV7F4EgejfOHfQ5a-mMoGCCFdU6CVqkhQgPmL7X9gwVHZmSiUnFUgNRSJopE-iQxIk-wCxfg22"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
+<div class="absolute bottom-3 left-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container text-sm">satellite_alt</span>
+<span class="font-label-caps text-[10px] text-on-surface">CACHED TACTICAL VIEWPORT</span>
+</div>
+</div>
+</section>
+<!-- Storage Retention Settings -->
+<section class="bento-card p-4 rounded-lg space-y-4">
+<div class="flex items-start justify-between">
+<div class="flex-1 pr-4">
+<h4 class="font-headline-md text-headline-md leading-tight">Auto-compress activities older than 90 days</h4>
+<p class="font-body-md text-on-surface-variant text-sm mt-1">Utilizes the RDP (Ramer-Douglas-Peucker) Algorithm to reduce storage footprint while preserving essential waypoint accuracy.</p>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-center">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">ALGORITHM STATUS</span>
+<div class="font-headline-md text-headline-md text-primary-container">OPTIMIZED</div>
+</div>
+<button class="px-4 py-2 border border-outline-variant rounded-lg font-label-caps text-label-caps text-on-surface hover:bg-surface-container-high transition-colors">
+          RE-INDEX FILES
+        </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface dark:bg-surface border-t border-outline-variant flat no shadows">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all active:translate-y-0.5 p-2 rounded-xl">
+<span class="material-symbols-outlined">directions_run</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Track</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all active:translate-y-0.5 p-2 rounded-xl">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Activities</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all active:translate-y-0.5 p-2 rounded-xl">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Insights</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined">settings_suggest</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

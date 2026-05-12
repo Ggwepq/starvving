@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>STARVVING - Activity Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,900&amp;family=Inter:wght@400;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#d2e5f5",
+                    "outline-variant": "#444933",
+                    "secondary": "#ffb5a0",
+                    "on-background": "#e2e4cf",
+                    "on-secondary": "#5f1500",
+                    "surface-bright": "#373b2c",
+                    "on-error-container": "#ffdad6",
+                    "on-primary-container": "#556d00",
+                    "secondary-container": "#d73b00",
+                    "surface-container-lowest": "#0c0f04",
+                    "error": "#ffb4ab",
+                    "on-primary-fixed": "#161e00",
+                    "on-tertiary-container": "#556774",
+                    "surface-dim": "#111508",
+                    "surface-tint": "#abd600",
+                    "on-primary": "#283500",
+                    "secondary-fixed-dim": "#ffb5a0",
+                    "on-tertiary": "#21323e",
+                    "on-error": "#690005",
+                    "background": "#111508",
+                    "on-tertiary-fixed-variant": "#374956",
+                    "primary-fixed-dim": "#abd600",
+                    "on-primary-fixed-variant": "#3c4d00",
+                    "surface-container-high": "#282b1d",
+                    "primary": "#ffffff",
+                    "tertiary-fixed": "#d2e5f5",
+                    "surface-container-highest": "#333627",
+                    "on-secondary-container": "#fffbff",
+                    "inverse-on-surface": "#2f3223",
+                    "inverse-surface": "#e2e4cf",
+                    "tertiary": "#ffffff",
+                    "primary-fixed": "#c3f400",
+                    "outline": "#8e9379",
+                    "surface": "#111508",
+                    "primary-container": "#c3f400",
+                    "on-tertiary-fixed": "#0b1d29",
+                    "inverse-primary": "#506600",
+                    "surface-container-low": "#1a1d10",
+                    "on-surface": "#e2e4cf",
+                    "secondary-fixed": "#ffdbd1",
+                    "on-surface-variant": "#c4c9ac",
+                    "error-container": "#93000a",
+                    "surface-container": "#1e2113",
+                    "surface-variant": "#333627",
+                    "tertiary-fixed-dim": "#b6c9d8",
+                    "on-secondary-fixed": "#3b0900",
+                    "on-secondary-fixed-variant": "#862200"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "xl": "32px",
+                    "gutter": "12px",
+                    "unit": "4px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "margin-mobile": "16px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Barlow Condensed"],
+                    "label-caps": ["JetBrains Mono"],
+                    "metric-lg": ["Barlow Condensed"],
+                    "metric-md": ["Barlow Condensed"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Barlow Condensed"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "metric-lg": ["64px", {"lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "metric-md": ["48px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .map-mesh {
+            background-image: radial-gradient(circle at 2px 2px, #444933 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+<!-- Top Navigation -->
+<header class="bg-surface border-b border-outline-variant docked full-width top-0 flex justify-between items-center w-full px-margin-mobile h-16 sticky z-50">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary-container">arrow_back</span>
+<h1 class="font-headline-lg text-headline-lg text-primary-container italic font-black uppercase tracking-tight">STARVVING</h1>
+</div>
+</header>
+<main class="max-w-4xl mx-auto p-gutter space-y-gutter">
+<!-- Hero Map Section -->
+<section class="relative w-full aspect-video md:aspect-[21/9] bg-surface-container border border-outline-variant overflow-hidden rounded-lg">
+<img alt="Activity Route Map" class="w-full h-full object-cover grayscale opacity-80 mix-blend-lighten" data-alt="A tactical-style topographic satellite map view of the French Alps around Chamonix, featuring a sharp, glowing neon lime green line representing a high-endurance running path. The map is rendered in high-contrast dark tones with deep blacks and forest greens, emphasized by structural grid overlays and professional cartography markings. The overall mood is rugged and performance-driven, echoing professional-grade athletic navigation equipment." data-location="Chamonix, France" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCXl-OrxzAWL1AZmw52N9vy6nwL0fqMBQQCBx7US9y8SAxU4oTrEROH4FVYUAezDRphCgwTFbkRfaFD6x57aViDo9i7rlSgZ0Ya3VKSDUvoID33_tseB2eFWgP5qsolRJJrPvlXk23DAxv4gGeup7lyFbllufx5Ik26L9QMJBkwDTMjjw25bvohhx8mqsOczNeD4MmwaOwugu-YZvXIyKNq11aertGEv1x5S5jh18CmaeaoJ3SVKaCaU_ytZtI7P7ypmtYd2O0qrdY"/>
+<div class="absolute inset-0 map-mesh pointer-events-none opacity-20"></div>
+<div class="absolute top-4 left-4 flex gap-sm">
+<span class="bg-surface-container-lowest border border-outline-variant px-sm py-1 font-label-caps text-label-caps text-on-surface uppercase">Trail Run: Vertical Kilometre</span>
+</div>
+<div class="absolute bottom-4 right-4">
+<div class="bg-surface-container border-2 border-primary-container p-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">gps_fixed</span>
+<span class="font-label-caps text-label-caps text-primary-container">SIGNAL LOCK 100%</span>
+</div>
+</div>
+</section>
+<!-- Summary Metrics Grid -->
+<section class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+<div class="bg-surface-container border border-outline-variant p-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Distance</p>
+<div class="flex items-baseline gap-xs">
+<span class="font-metric-md text-metric-md text-primary-container">12.4</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">KM</span>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant p-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Avg Pace</p>
+<div class="flex items-baseline gap-xs">
+<span class="font-metric-md text-metric-md text-primary-container">4:52</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">/KM</span>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant p-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Time</p>
+<div class="flex items-baseline gap-xs">
+<span class="font-metric-md text-metric-md text-primary-container">01:00:24</span>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant p-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-xs">Calories</p>
+<div class="flex items-baseline gap-xs">
+<span class="font-metric-md text-metric-md text-primary-container">842</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">KCAL</span>
+</div>
+</div>
+</section>
+<!-- Performance Charts Section -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Elevation Profile -->
+<div class="bg-surface-container border border-outline-variant p-md space-y-md">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary uppercase">Elevation Profile</h3>
+<span class="font-label-caps text-label-caps text-on-surface-variant">GAIN: 840M</span>
+</div>
+<div class="h-40 w-full flex items-end gap-1">
+<div class="bg-outline-variant w-full h-[10%]"></div>
+<div class="bg-outline-variant w-full h-[15%]"></div>
+<div class="bg-outline-variant w-full h-[25%]"></div>
+<div class="bg-outline-variant w-full h-[40%]"></div>
+<div class="bg-primary-container w-full h-[65%]"></div>
+<div class="bg-primary-container w-full h-[85%]"></div>
+<div class="bg-primary-container w-full h-[95%]"></div>
+<div class="bg-primary-container w-full h-[100%]"></div>
+<div class="bg-primary-container w-full h-[80%]"></div>
+<div class="bg-primary-container w-full h-[60%]"></div>
+<div class="bg-outline-variant w-full h-[45%]"></div>
+<div class="bg-outline-variant w-full h-[30%]"></div>
+<div class="bg-outline-variant w-full h-[20%]"></div>
+<div class="bg-outline-variant w-full h-[15%]"></div>
+</div>
+</div>
+<!-- Pace Consistency -->
+<div class="bg-surface-container border border-outline-variant p-md space-y-md">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary uppercase">Pace Delta</h3>
+<span class="font-label-caps text-label-caps text-secondary">VAR: 2.4%</span>
+</div>
+<div class="relative h-40 w-full flex items-center">
+<div class="absolute w-full h-[1px] bg-outline-variant"></div>
+<div class="w-full flex justify-around items-end h-full py-4">
+<div class="bg-secondary-container w-1 h-12"></div>
+<div class="bg-primary-container w-1 h-8"></div>
+<div class="bg-primary-container w-1 h-4"></div>
+<div class="bg-secondary-container w-1 h-16"></div>
+<div class="bg-primary-container w-1 h-6"></div>
+<div class="bg-primary-container w-1 h-2"></div>
+<div class="bg-primary-container w-1 h-4"></div>
+<div class="bg-primary-container w-1 h-10"></div>
+<div class="bg-secondary-container w-1 h-14"></div>
+<div class="bg-primary-container w-1 h-4"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Metrics Table -->
+<section class="bg-surface-container border border-outline-variant overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-high">
+<th class="p-md font-label-caps text-label-caps text-on-surface-variant uppercase">Metric</th>
+<th class="p-md font-label-caps text-label-caps text-on-surface-variant uppercase text-right">Value</th>
+<th class="p-md font-label-caps text-label-caps text-on-surface-variant uppercase text-right">Unit</th>
+</tr>
+</thead>
+<tbody class="font-body-md">
+<tr class="border-b border-outline-variant">
+<td class="p-md text-on-surface">Max Heart Rate</td>
+<td class="p-md text-right font-bold">184</td>
+<td class="p-md text-right text-on-surface-variant text-sm">BPM</td>
+</tr>
+<tr class="border-b border-outline-variant">
+<td class="p-md text-on-surface">Avg Cadence</td>
+<td class="p-md text-right font-bold">172</td>
+<td class="p-md text-right text-on-surface-variant text-sm">SPM</td>
+</tr>
+<tr>
+<td class="p-md text-on-surface">Training Effect</td>
+<td class="p-md text-right font-bold text-primary-container">4.8</td>
+<td class="p-md text-right text-on-surface-variant text-sm">AEROBIC</td>
+</tr>
+</tbody>
+</table>
+</section>
+<!-- Action Buttons -->
+<section class="flex flex-col md:flex-row gap-sm pt-gutter">
+<button class="flex-1 bg-primary-container text-on-primary-container h-12 flex items-center justify-center gap-sm rounded hover:bg-primary-fixed transition-colors active:scale-95 duration-75">
+<span class="material-symbols-outlined">sync</span>
+<span class="font-label-caps text-label-caps uppercase font-bold">Sync to Strava</span>
+</button>
+<button class="flex-1 border-2 border-secondary text-secondary h-12 flex items-center justify-center gap-sm rounded hover:bg-secondary hover:text-on-secondary transition-colors active:scale-95 duration-75">
+<span class="material-symbols-outlined">download</span>
+<span class="font-label-caps text-label-caps uppercase font-bold">Export GPX</span>
+</button>
+<button class="flex-1 border-2 border-outline text-on-surface-variant h-12 flex items-center justify-center gap-sm rounded hover:bg-surface-container-high transition-colors active:scale-95 duration-75">
+<span class="material-symbols-outlined">table_chart</span>
+<span class="font-label-caps text-label-caps uppercase font-bold">Export CSV</span>
+</button>
+</section>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface border-t border-outline-variant">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="directions_run">directions_run</span>
+<span class="font-label-caps text-label-caps uppercase">Track</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="history" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-label-caps text-label-caps uppercase">Activities</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-caps text-label-caps uppercase">Insights</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-on-surface transition-all active:translate-y-0.5">
+<span class="material-symbols-outlined" data-icon="settings_suggest">settings_suggest</span>
+<span class="font-label-caps text-label-caps uppercase">Settings</span>
+</div>
+</nav>
+</body></html>
