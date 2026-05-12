@@ -6,6 +6,8 @@ import '../services/database_service.dart';
 import '../services/tracking_service.dart';
 import '../widgets/route_map_view.dart';
 import 'activity_detail_screen.dart';
+import 'offline_maps_screen.dart';
+import '../widgets/live_maplibre_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Activity> _activities = [];
   bool _isLoadingHistory = true;
   bool _simulationMode = true; // default true for immediate perfect demo
+  bool _useMaplibreEngine = false;
 
   @override
   void initState() {
@@ -61,6 +64,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.map_rounded, color: Color(0xFFC3F400)),
+            tooltip: 'Manage Offline Map Regions',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const OfflineMapsScreen(),
+                ),
+              );
+            },
+          ),
           Container(
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -153,7 +168,91 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Dynamic Map Overview Canvas
-              RouteMapView(points: tracker.currentRoute, height: 220),
+              if (_useMaplibreEngine)
+                LiveMaplibreView(points: tracker.currentRoute, height: 220)
+              else
+                RouteMapView(points: tracker.currentRoute, height: 220),
+              const SizedBox(height: 12),
+
+              // Map Engine Mode Selector
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'RENDER ENGINE',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF8E9379),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _useMaplibreEngine = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: !_useMaplibreEngine
+                                ? const Color(0xFF282B1D)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: !_useMaplibreEngine
+                                  ? const Color(0xFFC3F400)
+                                  : Colors.transparent,
+                            ),
+                          ),
+                          child: Text(
+                            'CANVAS',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: !_useMaplibreEngine
+                                  ? const Color(0xFFC3F400)
+                                  : const Color(0xFF8E9379),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () => setState(() => _useMaplibreEngine = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _useMaplibreEngine
+                                ? const Color(0xFF282B1D)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: _useMaplibreEngine
+                                  ? const Color(0xFFC3F400)
+                                  : Colors.transparent,
+                            ),
+                          ),
+                          child: Text(
+                            'MAPLIBRE',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: _useMaplibreEngine
+                                  ? const Color(0xFFC3F400)
+                                  : const Color(0xFF8E9379),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
 
               // Modular Metric Grid View

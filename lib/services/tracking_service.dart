@@ -239,6 +239,21 @@ class TrackingService extends ChangeNotifier {
     return finishedActivity;
   }
 
+  // Audit helper to independently recalculate cumulative Haversine distance over coordinate sets
+  static double calculateTotalHaversineDistance(List<LocationPoint> points) {
+    if (points.length < 2) return 0.0;
+    double cumulative = 0.0;
+    for (int i = 0; i < points.length - 1; i++) {
+      cumulative += Geolocator.distanceBetween(
+        points[i].lat,
+        points[i].lng,
+        points[i + 1].lat,
+        points[i + 1].lng,
+      );
+    }
+    return cumulative;
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
