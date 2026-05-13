@@ -115,11 +115,33 @@ class TrackingService extends ChangeNotifier {
       _positionSubscription = Geolocator.getPositionStream(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.best,
-          distanceFilter: 1, // update every meter
+          distanceFilter: 2, // filter hardware-level tiny noise
         ),
       ).listen((Position position) {
-        // GPS Accuracy Thresholding: silently discard points with accuracy > 15m
-        if (position.accuracy > 15.0) return;
+        // 1. Accuracy threshold: discard points with poor accuracy (> 20m) to avoid massive building jumps
+        if (position.accuracy > 20.0) return;
+
+        // 2. Stationary drift & outlier jump filter against the last recorded point
+        if (_currentRoute.isNotEmpty) {
+          final lastPoint = _currentRoute.last;
+          final deltaMeters = Geolocator.distanceBetween(
+            lastPoint.lat,
+            lastPoint.lng,
+            position.latitude,
+            position.longitude,
+          );
+
+          // Ignore stationary drift movements of less than 3.5 meters
+          if (deltaMeters < 3.5) return;
+
+          // Calculate time elapsed to identify impossible vehicle/building jumps
+          final dtSeconds = DateTime.now().difference(lastPoint.recordedAt).inMilliseconds / 1000.0;
+          if (dtSeconds > 0) {
+            final impliedSpeed = deltaMeters / dtSeconds;
+            // If implied speed exceeds realistic speeds (e.g. > 45 m/s or ~162 km/h), discard as a GPS multipath reflection jump
+            if (impliedSpeed > 45.0) return;
+          }
+        }
 
         _processNewPosition(
           position.latitude,

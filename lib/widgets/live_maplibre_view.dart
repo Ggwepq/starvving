@@ -10,11 +10,13 @@ import '../models/schemas.dart';
 class LiveMaplibreView extends StatefulWidget {
   final List<LocationPoint> points;
   final double height;
+  final bool isLiveTracking;
 
   const LiveMaplibreView({
     super.key,
     required this.points,
     this.height = 260,
+    this.isLiveTracking = true,
   });
 
   @override
@@ -37,7 +39,17 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
   Future<void> _prepareOfflineMapEngine() async {
     // 1. Determine optimized initial viewport (physical sensor or route sets)
     if (widget.points.isNotEmpty) {
-      _initialTarget = LatLng(widget.points.last.lat, widget.points.last.lng);
+      if (!widget.isLiveTracking) {
+        double sumLat = 0;
+        double sumLng = 0;
+        for (final p in widget.points) {
+          sumLat += p.lat;
+          sumLng += p.lng;
+        }
+        _initialTarget = LatLng(sumLat / widget.points.length, sumLng / widget.points.length);
+      } else {
+        _initialTarget = LatLng(widget.points.last.lat, widget.points.last.lng);
+      }
     } else {
       try {
         final pos = await Geolocator.getLastKnownPosition() ??
@@ -206,7 +218,7 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
       }
     }
 
-    if (latlngs.isNotEmpty) {
+    if (latlngs.isNotEmpty && widget.isLiveTracking) {
       _mapController!.animateCamera(
         CameraUpdate.newLatLng(latlngs.last),
       );
@@ -235,13 +247,16 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
                       styleString: _resolvedStyleString!,
                       initialCameraPosition: CameraPosition(
                         target: _initialTarget,
-                        zoom: 16.0,
+                        zoom: widget.isLiveTracking ? 16.0 : 14.5,
                       ),
                       onMapCreated: (controller) {
                         _mapController = controller;
                         _updateTrajectory();
                       },
-                      myLocationEnabled: true, // Native physical position live blue dot continuously active
+                      onStyleLoadedCallback: () {
+                        _updateTrajectory();
+                      },
+                      myLocationEnabled: widget.isLiveTracking, // Native physical position live blue dot active during live tracking
                       compassEnabled: false,
                     ),
 

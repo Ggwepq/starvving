@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/schemas.dart';
 import '../services/database_service.dart';
 import '../services/gpx_service.dart';
-import '../widgets/route_map_view.dart';
+import '../widgets/live_maplibre_view.dart';
 
 class ActivityDetailScreen extends StatefulWidget {
   final Activity activity;
@@ -139,7 +139,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Map Trajectory Card View
-                  RouteMapView(points: _points, height: 260),
+                  LiveMaplibreView(points: _points, height: 260, isLiveTracking: false),
                   const SizedBox(height: 20),
 
                   // Core Statistical Metrics Grid
