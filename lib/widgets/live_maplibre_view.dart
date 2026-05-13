@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import '../models/schemas.dart';
+import '../services/settings_service.dart';
 
 class LiveMaplibreView extends StatefulWidget {
   final List<LocationPoint> points;
@@ -193,12 +195,16 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
     final latlngs =
         widget.points.map((p) => LatLng(p.lat, p.lng)).toList();
 
+    final String accentHex = mounted
+        ? context.read<SettingsService>().accentColorHex
+        : '#C3F400';
+
     if (_trajectoryLine == null) {
       try {
         _trajectoryLine = await _mapController!.addLine(
           LineOptions(
             geometry: latlngs,
-            lineColor: '#C3F400',
+            lineColor: accentHex,
             lineWidth: 5.0,
             lineOpacity: 0.9,
             lineJoin: 'round',
@@ -211,7 +217,10 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
       try {
         await _mapController!.updateLine(
           _trajectoryLine!,
-          LineOptions(geometry: latlngs),
+          LineOptions(
+            geometry: latlngs,
+            lineColor: accentHex,
+          ),
         );
       } catch (e) {
         _trajectoryLine = null;
@@ -227,6 +236,13 @@ class _LiveMaplibreViewState extends State<LiveMaplibreView> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<SettingsService>();
+    if (_mapController != null && _trajectoryLine != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _updateTrajectory();
+      });
+    }
+
     return Container(
       height: widget.height,
       width: double.infinity,

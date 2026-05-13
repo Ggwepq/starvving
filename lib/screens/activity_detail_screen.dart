@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import '../models/schemas.dart';
 import '../services/database_service.dart';
 import '../services/gpx_service.dart';
+import '../services/settings_service.dart';
 import '../widgets/live_maplibre_view.dart';
 
 class ActivityDetailScreen extends StatefulWidget {
@@ -45,15 +47,12 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     return "${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
   }
 
-  String _formatPace(double paceSec) {
-    if (paceSec <= 0 || paceSec > 3600) return "--:--";
-    final mins = (paceSec ~/ 60);
-    final secs = (paceSec % 60).floor();
-    return "${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}";
-  }
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+    final accentColor = settings.activeAccentColor;
+
     return Scaffold(
       backgroundColor: const Color(0xFF111508),
       appBar: AppBar(
@@ -61,7 +60,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFFC3F400)),
+          icon: Icon(Icons.arrow_back, color: accentColor),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -69,7 +68,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
           style: GoogleFonts.barlowCondensed(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFFC3F400),
+            color: accentColor,
             letterSpacing: 1.0,
           ),
         ),
@@ -130,8 +129,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
         ],
       ),
       body: _isLoadingPoints
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFC3F400)),
+          ? Center(
+              child: CircularProgressIndicator(color: accentColor),
             )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -148,11 +147,9 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                       Expanded(
                         child: _StatCard(
                           label: 'DISTANCE',
-                          value:
-                              (widget.activity.distanceMeters / 1000.0)
-                                  .toStringAsFixed(2),
-                          unit: 'KM',
-                          color: const Color(0xFFC3F400),
+                          value: settings.formatDistanceStr(widget.activity.distanceMeters),
+                          unit: settings.unitSuffix.toUpperCase(),
+                          color: accentColor,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -174,8 +171,8 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                       Expanded(
                         child: _StatCard(
                           label: 'AVG PACE',
-                          value: _formatPace(widget.activity.avgPaceSecPerKm),
-                          unit: '/KM',
+                          value: settings.formatPace(widget.activity.avgPaceSecPerKm),
+                          unit: settings.paceUnitSuffix.toUpperCase(),
                           color: Colors.white,
                         ),
                       ),
@@ -246,7 +243,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                                   style: GoogleFonts.jetBrainsMono(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFFC3F400),
+                                    color: accentColor,
                                   ),
                                 ),
                               ],
@@ -264,7 +261,7 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                     height: 56,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC3F400),
+                        backgroundColor: accentColor,
                         foregroundColor: const Color(0xFF111508),
                         elevation: 4,
                         shape: RoundedRectangleBorder(

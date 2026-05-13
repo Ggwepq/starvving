@@ -13,6 +13,8 @@ class DatabaseService {
     isar = await Isar.open([
       ActivitySchema,
       LocationPointSchema,
+      LapSplitSchema,
+      AppSettingsSchema,
     ], directory: dir.path);
     _isInitialized = true;
   }
@@ -124,6 +126,7 @@ class DatabaseService {
                     ..lat = p.lat
                     ..lng = p.lng
                     ..accuracyMeters = p.accuracyMeters
+                    ..altitudeMeters = p.altitudeMeters
                     ..recordedAt = p.recordedAt,
                 )
                 .toList();
@@ -137,5 +140,36 @@ class DatabaseService {
     }
 
     return totalReclaimed;
+  }
+
+  // Retrieve or initialize application settings singleton
+  Future<AppSettings> getSettings() async {
+    var settings = await isar.appSettings.get(1);
+    if (settings == null) {
+      settings = AppSettings();
+      await isar.writeTxn(() async {
+        await isar.appSettings.put(settings!);
+      });
+    }
+    return settings;
+  }
+
+  // Persist updated app settings instance
+  Future<void> saveSettings(AppSettings settings) async {
+    await isar.writeTxn(() async {
+      await isar.appSettings.put(settings);
+    });
+  }
+
+  // Clear all local records (Destroy Local Data procedure)
+  Future<void> destroyAllLocalData() async {
+    await isar.writeTxn(() async {
+      await isar.activitys.clear();
+      await isar.locationPoints.clear();
+      await isar.lapSplits.clear();
+      // Keep appSettings cleanly reset to default state
+      final defaultSettings = AppSettings();
+      await isar.appSettings.put(defaultSettings);
+    });
   }
 }

@@ -118,10 +118,13 @@ class TrackingService extends ChangeNotifier {
           distanceFilter: 2, // filter hardware-level tiny noise
         ),
       ).listen((Position position) {
-        // 1. Accuracy threshold: discard points with poor accuracy (> 20m) to avoid massive building jumps
-        if (position.accuracy > 20.0) return;
+        // 1. Hardware accuracy threshold: discard multipath reflection points (> 25m) to avoid massive building/vehicle jumps
+        if (position.accuracy > 25.0) return;
 
-        // 2. Stationary drift & outlier jump filter against the last recorded point
+        double targetLat = position.latitude;
+        double targetLng = position.longitude;
+
+        // 2. Advanced Adaptive Kinematic & Stationary Outlier Smoothing Filter
         if (_currentRoute.isNotEmpty) {
           final lastPoint = _currentRoute.last;
           final deltaMeters = Geolocator.distanceBetween(
@@ -131,21 +134,30 @@ class TrackingService extends ChangeNotifier {
             position.longitude,
           );
 
-          // Ignore stationary drift movements of less than 3.5 meters
-          if (deltaMeters < 3.5) return;
+          // If GPS hardware reports very low speed (< 0.5 m/s) and displacement is moderate (< 10m), user is entirely stationary. Discard random drift completely.
+          if (position.speed < 0.5 && deltaMeters < 10.0) return;
 
-          // Calculate time elapsed to identify impossible vehicle/building jumps
+          // Ignore any basic jitter movements under 3.0 meters overall
+          if (deltaMeters < 3.0) return;
+
+          // Calculate elapsed time to identify unrealistic multi-path teleports inside moving vehicles
           final dtSeconds = DateTime.now().difference(lastPoint.recordedAt).inMilliseconds / 1000.0;
           if (dtSeconds > 0) {
             final impliedSpeed = deltaMeters / dtSeconds;
-            // If implied speed exceeds realistic speeds (e.g. > 45 m/s or ~162 km/h), discard as a GPS multipath reflection jump
-            if (impliedSpeed > 45.0) return;
+            // Cap absolute jump velocity at 55 m/s (~198 km/h) to filter massive multipath spikes
+            if (impliedSpeed > 55.0) return;
           }
+
+          // Kinematic Low-Pass / Exponential Moving Average Trajectory Smoother
+          // Adapts smoothing strength directly based on incoming coordinate precision.
+          final alpha = (6.0 / position.accuracy.clamp(3.0, 25.0)).clamp(0.2, 0.9);
+          targetLat = lastPoint.lat + alpha * (position.latitude - lastPoint.lat);
+          targetLng = lastPoint.lng + alpha * (position.longitude - lastPoint.lng);
         }
 
         _processNewPosition(
-          position.latitude,
-          position.longitude,
+          targetLat,
+          targetLng,
           position.accuracy,
         );
       }, onError: (e) {

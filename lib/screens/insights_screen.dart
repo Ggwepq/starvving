@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../models/schemas.dart';
 import '../services/database_service.dart';
+import '../services/settings_service.dart';
 import '../services/streak_service.dart';
 import 'manage_storage_screen.dart';
 
@@ -41,6 +43,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+    final accentColor = settings.activeAccentColor;
+
     return Scaffold(
       backgroundColor: const Color(0xFF111508),
       appBar: AppBar(
@@ -53,7 +58,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
           style: GoogleFonts.barlowCondensed(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFFC3F400),
+            color: accentColor,
             letterSpacing: 1.0,
           ),
         ),
@@ -78,8 +83,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
         future: _activitiesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFFC3F400)),
+            return Center(
+              child: CircularProgressIndicator(color: accentColor),
             );
           }
 
@@ -87,7 +92,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
           final metrics = StreakService.calculateMetrics(activities);
 
           return RefreshIndicator(
-            color: const Color(0xFFC3F400),
+            color: accentColor,
             backgroundColor: const Color(0xFF1E2113),
             onRefresh: () async => _refreshData(),
             child: SingleChildScrollView(
@@ -106,6 +111,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           unit: metrics.currentStreak == 1 ? 'DAY' : 'DAYS',
                           icon: Icons.local_fire_department_rounded,
                           iconColor: const Color(0xFFFFB4AB),
+                          unitColor: accentColor,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -115,7 +121,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           value: '${metrics.longestStreak}',
                           unit: metrics.longestStreak == 1 ? 'DAY' : 'DAYS',
                           icon: Icons.emoji_events_rounded,
-                          iconColor: const Color(0xFFC3F400),
+                          iconColor: accentColor,
+                          unitColor: accentColor,
                         ),
                       ),
                     ],
@@ -126,10 +133,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       Expanded(
                         child: _buildStatCard(
                           title: 'CUMULATIVE DISTANCE',
-                          value: metrics.totalDistanceKm.toStringAsFixed(1),
-                          unit: 'KM',
+                          value: settings.formatDistanceStr(metrics.totalDistanceKm * 1000.0),
+                          unit: settings.unitSuffix.toUpperCase(),
                           icon: Icons.route_rounded,
-                          iconColor: const Color(0xFFC3F400),
+                          iconColor: accentColor,
+                          unitColor: accentColor,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -140,6 +148,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           unit: '',
                           icon: Icons.timer_rounded,
                           iconColor: const Color(0xFF8E9379),
+                          unitColor: accentColor,
                         ),
                       ),
                     ],
@@ -183,13 +192,13 @@ class _InsightsScreenState extends State<InsightsScreen> {
                           letterSpacing: 0.5,
                         ),
                         formatButtonVisible: false,
-                        leftChevronIcon: const Icon(
+                        leftChevronIcon: Icon(
                           Icons.chevron_left,
-                          color: Color(0xFFC3F400),
+                          color: accentColor,
                         ),
-                        rightChevronIcon: const Icon(
+                        rightChevronIcon: Icon(
                           Icons.chevron_right,
-                          color: Color(0xFFC3F400),
+                          color: accentColor,
                         ),
                         titleCentered: true,
                       ),
@@ -242,9 +251,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
                               margin: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color(0xFFC3F400).withValues(alpha: 0.15),
+                                color: accentColor.withValues(alpha: 0.15),
                                 border: Border.all(
-                                  color: const Color(0xFFC3F400),
+                                  color: accentColor,
                                   width: 1.5,
                                 ),
                               ),
@@ -254,7 +263,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFFC3F400),
+                                  color: accentColor,
                                 ),
                               ),
                             );
@@ -270,7 +279,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                               margin: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color(0xFFC3F400),
+                                color: accentColor,
                               ),
                               alignment: Alignment.center,
                               child: Text(
@@ -303,6 +312,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
     required String unit,
     required IconData icon,
     required Color iconColor,
+    required Color unitColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -349,7 +359,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                   style: GoogleFonts.barlowCondensed(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFFC3F400),
+                    color: unitColor,
                   ),
                 ),
               ],

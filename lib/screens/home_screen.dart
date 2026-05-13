@@ -7,6 +7,8 @@ import '../services/database_service.dart';
 import '../services/tracking_service.dart';
 import 'activity_detail_screen.dart';
 import 'insights_screen.dart';
+import 'settings_screen.dart';
+import '../services/settings_service.dart';
 import '../widgets/live_maplibre_view.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -50,6 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+    final accentColor = settings.activeAccentColor;
+
     return Scaffold(
       backgroundColor: const Color(0xFF111508),
       appBar: AppBar(
@@ -57,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.gps_fixed, color: Color(0xFFC3F400)),
+            Icon(Icons.gps_fixed, color: accentColor),
             const SizedBox(width: 8),
             Text(
               'STARVVING',
@@ -65,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 26,
                 fontWeight: FontWeight.w900,
                 fontStyle: FontStyle.italic,
-                color: const Color(0xFFC3F400),
+                color: accentColor,
                 letterSpacing: 1.5,
               ),
             ),
@@ -79,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildLiveTrackingTab(context),
           _buildHistoryTab(context),
           InsightsScreen(key: ValueKey('insights_tab_$_currentIndex')),
+          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: Container(
@@ -88,8 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
           backgroundColor: const Color(0xFF111508),
-          selectedItemColor: const Color(0xFFC3F400),
+          selectedItemColor: accentColor,
           unselectedItemColor: const Color(0xFF8E9379),
           selectedLabelStyle: GoogleFonts.jetBrainsMono(
             fontSize: 11,
@@ -124,6 +131,11 @@ class _HomeScreenState extends State<HomeScreen> {
               activeIcon: Icon(Icons.insights_rounded),
               label: 'INSIGHTS',
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings_outlined),
+              activeIcon: Icon(Icons.settings_rounded),
+              label: 'SETTINGS',
+            ),
           ],
         ),
       ),
@@ -131,6 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLiveTrackingTab(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+    final accentColor = settings.activeAccentColor;
+
     return Consumer<TrackingService>(
       builder: (context, tracker, child) {
         return SingleChildScrollView(
@@ -148,9 +163,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _MetricBox(
                       label: 'PACE (AVG)',
-                      value: tracker.formattedAvgPace,
-                      unit: '/KM',
-                      borderColor: const Color(0xFFC3F400),
+                      value: settings.formatPace(tracker.avgPaceSecPerKm),
+                      unit: settings.paceUnitSuffix.toUpperCase(),
+                      borderColor: accentColor,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -159,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: 'DURATION',
                       value: tracker.formattedDuration,
                       unit: '',
-                      borderColor: const Color(0xFFC3F400),
+                      borderColor: accentColor,
                     ),
                   ),
                 ],
@@ -173,8 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E2113),
                   borderRadius: BorderRadius.circular(12),
-                  border: const Border(
-                    left: BorderSide(color: Color(0xFFC3F400), width: 4),
+                  border: Border(
+                    left: BorderSide(color: accentColor, width: 4),
                   ),
                 ),
                 child: Column(
@@ -202,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: !tracker.isTracking
                                   ? const Color(0xFF8E9379)
                                   : (tracker.isGpsLocked
-                                      ? const Color(0xFFC3F400)
+                                      ? accentColor
                                       : Colors.orangeAccent),
                               size: 16,
                             ),
@@ -217,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: !tracker.isTracking
                                     ? const Color(0xFF8E9379)
                                     : (tracker.isGpsLocked
-                                        ? const Color(0xFFC3F400)
+                                        ? accentColor
                                         : Colors.orangeAccent),
                               ),
                             ),
@@ -231,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          (tracker.distanceMeters / 1000.0).toStringAsFixed(2),
+                          settings.formatDistanceStr(tracker.distanceMeters),
                           style: GoogleFonts.barlowCondensed(
                             fontSize: 56,
                             fontWeight: FontWeight.bold,
@@ -241,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          'KM',
+                          settings.unitSuffix.toUpperCase(),
                           style: GoogleFonts.barlowCondensed(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -390,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 64,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC3F400),
+                      backgroundColor: accentColor,
                       foregroundColor: const Color(0xFF111508),
                       elevation: 6,
                       shape: RoundedRectangleBorder(
@@ -420,16 +435,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHistoryTab(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+    final accentColor = settings.activeAccentColor;
+
     if (_isLoadingHistory) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFFC3F400)),
+      return Center(
+        child: CircularProgressIndicator(color: accentColor),
       );
     }
 
     final totalRuns = _activities.length;
-    final totalDistanceKms = _activities.fold<double>(
+    final totalDistanceMeters = _activities.fold<double>(
       0.0,
-      (sum, act) => sum + (act.distanceMeters / 1000.0),
+      (sum, act) => sum + act.distanceMeters,
     );
 
     // Compute active streak (consecutive calendar days starting from latest runs)
@@ -465,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return RefreshIndicator(
-      color: const Color(0xFFC3F400),
+      color: accentColor,
       backgroundColor: const Color(0xFF1E2113),
       onRefresh: _loadActivities,
       child: SingleChildScrollView(
@@ -491,8 +509,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _OverviewMetric(
                       label: 'TOTAL DIST',
-                      value: totalDistanceKms.toStringAsFixed(1),
-                      unit: 'KM',
+                      value: settings.formatDistanceStr(totalDistanceMeters),
+                      unit: settings.unitSuffix.toUpperCase(),
                     ),
                   ),
                   Container(
@@ -517,7 +535,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: 'STREAK',
                       value: '$streakDays',
                       unit: 'DAYS',
-                      valueColor: const Color(0xFFC3F400),
+                      valueColor: accentColor,
                     ),
                   ),
                 ],
@@ -581,15 +599,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   final formattedDur =
                       "${durationMins.toString().padLeft(2, '0')}:${durationSecs.toString().padLeft(2, '0')}";
 
-                  // Format average pace
-                  String formattedPace = "--:--";
-                  if (act.avgPaceSecPerKm > 0 && act.avgPaceSecPerKm <= 3600) {
-                    final paceMins = act.avgPaceSecPerKm ~/ 60;
-                    final paceSecs = (act.avgPaceSecPerKm % 60).floor();
-                    formattedPace =
-                        "${paceMins.toString().padLeft(2, '0')}:${paceSecs.toString().padLeft(2, '0')}";
-                  }
-
                   return InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {
@@ -623,9 +632,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: const Color(0xFF333627)),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.directions_run_rounded,
-                              color: Color(0xFFC3F400),
+                              color: accentColor,
                               size: 24,
                             ),
                           ),
@@ -641,8 +650,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   textBaseline: TextBaseline.alphabetic,
                                   children: [
                                     Text(
-                                      (act.distanceMeters / 1000.0)
-                                          .toStringAsFixed(2),
+                                      settings.formatDistanceStr(act.distanceMeters),
                                       style: GoogleFonts.barlowCondensed(
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
@@ -652,7 +660,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'KM',
+                                      settings.unitSuffix.toUpperCase(),
                                       style: GoogleFonts.barlowCondensed(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -685,7 +693,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '$formattedPace/km',
+                                      '${settings.formatPace(act.avgPaceSecPerKm)}${settings.paceUnitSuffix}',
                                       style: GoogleFonts.jetBrainsMono(
                                         fontSize: 11,
                                         color: const Color(0xFFE2E4CF),
